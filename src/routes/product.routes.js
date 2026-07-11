@@ -18,10 +18,10 @@ const router = Router();
 // ==========================
 
 // Get all products
-router.get("/", getProducts);
+router.get("/", protect, getProducts);
 
 // Get single product
-router.get("/:id", getProductById);
+router.get("/:id", protect, getProductById);
 
 // ==========================
 // Protected Routes
@@ -38,6 +38,7 @@ router.post(
 // Update Product
 router.put(
   "/:id",
+  protect,
   upload.array("images", 20),
   updateProduct
 );
@@ -45,13 +46,9 @@ router.put(
 // Delete Product
 router.delete(
   "/:id",
+  protect,
   deleteProduct
 );
 
-// Admin: Delete any product (optional)
-router.delete(
-  "/:id",
-  deleteProduct
-);
 
 export default router;

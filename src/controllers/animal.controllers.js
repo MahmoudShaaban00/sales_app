@@ -1,6 +1,9 @@
 import Product from "../models/product.js";
 import AnimalDetails from "../models/animal.js";
 
+// ==========================
+// Create Animal
+// ==========================
 export const createAnimal = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -11,6 +14,14 @@ export const createAnimal = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Product not found",
+      });
+    }
+
+    // السماح لصاحب المنتج فقط
+    if (product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to add animal details",
       });
     }
 
@@ -37,6 +48,9 @@ export const createAnimal = async (req, res) => {
   }
 };
 
+// ==========================
+// Get Animal
+// ==========================
 export const getAnimal = async (req, res) => {
   try {
     const animal = await AnimalDetails.findById(req.params.id);
@@ -48,7 +62,7 @@ export const getAnimal = async (req, res) => {
       });
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
       data: animal,
     });
@@ -60,8 +74,31 @@ export const getAnimal = async (req, res) => {
   }
 };
 
+// ==========================
+// Update Animal
+// ==========================
 export const updateAnimal = async (req, res) => {
   try {
+    const product = await Product.findOne({
+      detailsId: req.params.id,
+      detailsType: "Animal",
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // السماح لصاحب المنتج فقط
+    if (product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this animal",
+      });
+    }
+
     const animal = await AnimalDetails.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -78,8 +115,9 @@ export const updateAnimal = async (req, res) => {
       });
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
+      message: "Animal updated successfully",
       data: animal,
     });
   } catch (error) {
@@ -90,8 +128,31 @@ export const updateAnimal = async (req, res) => {
   }
 };
 
+// ==========================
+// Delete Animal
+// ==========================
 export const deleteAnimal = async (req, res) => {
   try {
+    const product = await Product.findOne({
+      detailsId: req.params.id,
+      detailsType: "Animal",
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // السماح لصاحب المنتج فقط
+    if (product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this animal",
+      });
+    }
+
     const animal = await AnimalDetails.findById(req.params.id);
 
     if (!animal) {
@@ -101,22 +162,13 @@ export const deleteAnimal = async (req, res) => {
       });
     }
 
-    await Product.findOneAndUpdate(
-      {
-        detailsId: animal._id,
-        detailsType: "Animal",
-      },
-      {
-        $unset: {
-          detailsId: "",
-          detailsType: "",
-        },
-      }
-    );
+    product.detailsId = null;
+    product.detailsType = null;
 
+    await product.save();
     await animal.deleteOne();
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Animal deleted successfully",
     });
@@ -128,11 +180,16 @@ export const deleteAnimal = async (req, res) => {
   }
 };
 
+// ==========================
+// Get All Animals
+// ==========================
 export const getAllAnimals = async (req, res) => {
   try {
     const animals = await AnimalDetails.find();
-    res.json({
+
+    res.status(200).json({
       success: true,
+      results: animals.length,
       data: animals,
     });
   } catch (error) {
@@ -143,13 +200,27 @@ export const getAllAnimals = async (req, res) => {
   }
 };
 
+// ==========================
+// Get Animals By Product Id
+// ==========================
 export const getAnimalsByProductId = async (req, res) => {
   try {
     const { productId } = req.params;
-    const animals = await AnimalDetails.find({ productId });
-    res.json({
+
+    const product = await Product.findById(productId);
+
+    if (!product || !product.detailsId) {
+      return res.status(404).json({
+        success: false,
+        message: "No animal details found",
+      });
+    }
+
+    const animal = await AnimalDetails.findById(product.detailsId);
+
+    res.status(200).json({
       success: true,
-      data: animals,
+      data: animal,
     });
   } catch (error) {
     res.status(500).json({
@@ -159,12 +230,18 @@ export const getAnimalsByProductId = async (req, res) => {
   }
 };
 
+// ==========================
+// Get Animals By Type
+// ==========================
 export const getAnimalsByType = async (req, res) => {
   try {
     const { type } = req.params;
+
     const animals = await AnimalDetails.find({ type });
-    res.json({
+
+    res.status(200).json({
       success: true,
+      results: animals.length,
       data: animals,
     });
   } catch (error) {
@@ -174,4 +251,3 @@ export const getAnimalsByType = async (req, res) => {
     });
   }
 };
-

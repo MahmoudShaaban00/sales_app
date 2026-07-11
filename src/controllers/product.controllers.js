@@ -167,13 +167,20 @@ export const updateProduct = async (req, res) => {
       });
     }
 
+    // Check Ownership
+    if (product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this product",
+      });
+    }
+
     if (req.body.title) product.title = req.body.title;
     if (req.body.description) product.description = req.body.description;
     if (req.body.price) product.price = req.body.price;
     if (req.body.phone) product.phone = req.body.phone;
     if (req.body.city) product.city = req.body.city;
-    if (req.body.governorate)
-      product.governorate = req.body.governorate;
+    if (req.body.governorate) product.governorate = req.body.governorate;
     if (req.body.negotiable !== undefined)
       product.negotiable = req.body.negotiable;
     if (req.body.listingType)
@@ -212,6 +219,14 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Product not found",
+      });
+    }
+
+    // Check Ownership
+    if (product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this product",
       });
     }
 

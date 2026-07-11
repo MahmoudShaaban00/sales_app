@@ -8,16 +8,18 @@ import {
   getAllAnimals,
 } from "../controllers/animal.controllers.js";
 
+import {protect} from "../middleware/auth.middleware.js";
+
 const router = Router();
 
-router.post("/:productId", createAnimal);
+router.post("/:productId", protect, createAnimal);
 
-router.get("/", getAllAnimals);
+router.get("/", protect, getAllAnimals);
 
-router.get("/:id", getAnimal);
+router.get("/:id", protect, getAnimal);
 
-router.put("/:id", updateAnimal);
+router.put("/:id", protect, updateAnimal);
 
-router.delete("/:id", deleteAnimal);
+router.delete("/:id", protect, deleteAnimal);
 
 export default router;
