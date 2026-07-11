@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { governorates } from "../contants/governorates.js";
+import { area } from "../contants/governorates.js";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -13,18 +13,22 @@ const userSchema = new mongoose.Schema({
     unique: true,
   },
 
-  password: {
-    type: String,
-    required: true,
-  },
+password: {
+  type: String,
+  required: true,
+  match: [
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$/,
+    "Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character.",
+  ],
+},
 
   phone: {
     type: String,
   },
 
-  governorate: {
+  area: {
     type: String,
-    enum: governorates,
+    enum: area,
     required: true,
   },
 });

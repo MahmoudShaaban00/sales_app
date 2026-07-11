@@ -152,6 +152,7 @@ export const getProductById = async (req, res) => {
   }
 };
 
+
 // =============================
 // Update Product
 // =============================
