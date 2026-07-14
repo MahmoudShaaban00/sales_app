@@ -12,6 +12,7 @@ const register = async (req, res) => {
       repassword,
       phone,
       area,
+      role,
     } = req.body;
 
     // Check required fields
@@ -62,7 +63,7 @@ const register = async (req, res) => {
       password: hashedPassword,
       phone,
       area,
-      role: "user",
+      role,
     });
 
     // Create token
